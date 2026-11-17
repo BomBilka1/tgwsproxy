@@ -24,8 +24,8 @@ from utils.logging_setup import build_log_handler
 
 log = logging.getLogger("tg-ws-tray")
 
-APP_NAME = "TgWsProxy"
-PORTABLE_DIR_NAME = "TgWsProxy_data"
+APP_NAME = "TgWsProxyBomBilka"
+PORTABLE_DIR_NAME = "TgWsProxyBomBilka_data"
 
 
 def _standard_app_dir() -> Path:

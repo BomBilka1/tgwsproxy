@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   comment:
-    if: contains(github.event.issue.labels.*.name, 'bug')
+    if: github.repository == 'Flowseal/tg-ws-proxy' && contains(github.event.issue.labels.*.name, 'bug')
     runs-on: ubuntu-latest
     steps:
       - name: Check for availability log file

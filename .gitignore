@@ -25,3 +25,8 @@ Desktop.ini
 .DS_Store
 
 /icon.icns
+
+# Local secrets
+.env
+.env.*
+!.env.example
