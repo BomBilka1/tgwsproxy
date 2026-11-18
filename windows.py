@@ -42,7 +42,7 @@ from utils.tray_common import (
     acquire_lock, bootstrap, check_ipv6_warning, check_update_async, ctk_run_dialog,
     ensure_ctk_thread, ensure_dirs, load_config, load_icon, log,
     quit_ctk, release_lock, restart_proxy,
-    save_config, start_proxy, stop_proxy, tg_proxy_url,
+    save_config, start_proxy, stop_proxy, tg_proxy_url, proxy_is_running,
 )
 from utils.update_check import find_asset, get_status, RELEASES_PAGE_URL
 from utils.windows_update import apply_update, asset_name, can_self_update
@@ -496,6 +496,37 @@ def _show_first_run() -> None:
 
 # tray menu
 
+_diagnostics_lock = threading.Lock()
+
+
+def _on_check_connection(icon=None, item=None):
+    if not _diagnostics_lock.acquire(blocking=False):
+        return
+
+    def work():
+        try:
+            from utils.connection_diagnostics import diagnose_connection
+            result = diagnose_connection(
+                _config.get("host", DEFAULT_CONFIG["host"]),
+                _config.get("port", DEFAULT_CONFIG["port"]), proxy_is_running(),
+            )
+            lines = [t("connection.local", result=t("connection." + result["local"])),
+                     t("connection.direct", result=t("connection." + result["direct"])),
+                     t("connection.cf", result=t("connection." + result["cf"])),
+                     t("connection.worker", result=t("connection." + result["worker"])),
+                     t("connection.tcp", result=t("connection." + result["tcp"])),
+                     t("connection.mode_plain" if result["no_secure"] else "connection.mode_tls"),
+                     t("connection.limit")]
+            _show_info("\n\n".join(lines), t("connection.title"))
+        except Exception:
+            log.exception("Connection diagnostics failed")
+            _show_error(t("connection.error"))
+        finally:
+            _diagnostics_lock.release()
+
+    threading.Thread(target=work, daemon=True, name="connection-diagnostics").start()
+
+
 def _build_menu():
     if pystray is None:
         return None
@@ -503,6 +534,9 @@ def _build_menu():
     port = _config.get("port", DEFAULT_CONFIG["port"])
     link_host = get_link_host(host)
     items = [
+        pystray.MenuItem(lambda item: t("connection.running" if proxy_is_running() else "connection.stopped"), None, enabled=False),
+        pystray.MenuItem(t("connection.check"), _on_check_connection),
+        pystray.Menu.SEPARATOR,
         pystray.MenuItem(t("tray.open_telegram", host=link_host, port=port), _on_open_in_telegram, default=True),
         pystray.MenuItem(t("tray.copy_link"), _on_copy_link),
         pystray.Menu.SEPARATOR,

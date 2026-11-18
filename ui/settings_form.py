@@ -246,6 +246,12 @@ def _create_dc(ctk, frame, theme, cfg, default_config):
 def _create_cfproxy(ctk, frame, theme, cfg, default_config, no_secure_var):
     cf_inner = create_config_section(ctk, frame, theme, t("section.cfproxy"))
 
+    no_secure_cb = create_checkbox(ctk, cf_inner, theme, t("label.no_secure"), no_secure_var)
+    no_secure_cb.pack(anchor="w", pady=(0, 4))
+    attach_ctk_tooltip(no_secure_cb, t("tip.no_secure"))
+    create_label(ctk, cf_inner, theme, t("label.no_secure_detail"), size=11,
+                 justify="left", wraplength=_INNER_W).pack(fill="x", pady=(0, 8))
+
     cf_row = ctk.CTkFrame(cf_inner, fg_color="transparent")
     cf_row.pack(fill="x", pady=(0, 4))
 
@@ -450,10 +456,6 @@ def _create_logging(ctk, frame, theme, cfg, default_config, no_secure_var):
     verbose_cb = create_checkbox(ctk, log_inner, theme, t("label.verbose"), verbose_var)
     verbose_cb.pack(anchor="w", pady=(0, 6))
     attach_ctk_tooltip(verbose_cb, t("tip.verbose"))
-
-    no_secure_cb = create_checkbox(ctk, log_inner, theme, t("label.no_secure"), no_secure_var)
-    no_secure_cb.pack(anchor="w", pady=(0, 6))
-    attach_ctk_tooltip(no_secure_cb, t("tip.no_secure"))
 
     adv_frame = ctk.CTkFrame(log_inner, fg_color="transparent")
     adv_frame.pack(fill="x")

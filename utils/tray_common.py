@@ -378,6 +378,11 @@ def apply_proxy_config(cfg: dict) -> bool:
     return True
 
 
+def proxy_is_running() -> bool:
+    """Return whether the proxy worker thread is running, not its network health."""
+    return bool(_proxy_thread and _proxy_thread.is_alive())
+
+
 def start_proxy(cfg: dict, on_error: Callable[[str], None]) -> None:
     global _proxy_thread
     if _proxy_thread and _proxy_thread.is_alive():
