@@ -458,38 +458,43 @@ def check_ipv6_warning(show_info: Callable[[str, str], None]) -> None:
 
 # update check
 
+def _update_check_loop(
+    cfg: dict,
+    is_exiting: Callable[[], bool],
+    on_update: Callable[[str, str], None],
+    wait: Callable[[float], None] = time.sleep,
+) -> None:
+    """Check on startup and hourly; notify once for each available version."""
+    from utils.update_check import RELEASES_PAGE_URL, get_status, run_check
+
+    notified_version = None
+    wait(1.5)
+    while not is_exiting():
+        if cfg.get("check_updates", True):
+            try:
+                run_check(__version__)
+                st = get_status()
+                version = st.get("latest")
+                if (st.get("has_update") and version != notified_version
+                        and not is_exiting()):
+                    on_update(version or "?", (st.get("html_url") or "").strip()
+                              or RELEASES_PAGE_URL)
+                    notified_version = version
+            except Exception as exc:
+                log.warning("Update check failed: %s", repr(exc))
+        wait(3600)
+
+
 def check_update_async(
     cfg: dict,
     is_exiting: Callable[[], bool],
     on_update: Callable[[str, str], None],
 ) -> None:
-    """Check the latest release in the background.
-
-    on_update(version, release_page_url) is called from the worker thread
-    when a newer version is available.
-    """
-    if not cfg.get("check_updates", True):
-        return
-
-    def _work() -> None:
-        time.sleep(1.5)
-        if is_exiting():
-            return
-        try:
-            from utils.update_check import RELEASES_PAGE_URL, get_status, run_check
-
-            run_check(__version__)
-            st = get_status()
-            if not st.get("has_update") or is_exiting():
-                return
-            on_update(
-                st.get("latest") or "?",
-                (st.get("html_url") or "").strip() or RELEASES_PAGE_URL,
-            )
-        except Exception as exc:
-            log.warning("Update check failed: %s", repr(exc))
-
-    threading.Thread(target=_work, daemon=True, name="update-check").start()
+    """Run periodic checks in the background; respect changes to settings."""
+    threading.Thread(
+        target=_update_check_loop, args=(cfg, is_exiting, on_update),
+        daemon=True, name="update-check",
+    ).start()
 
 
 def maybe_notify_update(

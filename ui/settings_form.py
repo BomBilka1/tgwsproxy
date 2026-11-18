@@ -550,14 +550,7 @@ def _create_updates(ctk, frame, theme, cfg, default_config, on_update_click):
         else:
             update_button.grid_remove()
 
-    def sync_manual_check(*_):
-        if check_updates_var.get():
-            check_button.pack_forget()
-        else:
-            check_button.pack(fill="x", pady=(0, 8), before=upd_btn_row)
-
-    check_updates_var.trace_add("write", sync_manual_check)
-    sync_manual_check()
+    check_button.pack(fill="x", pady=(0, 8), before=upd_btn_row)
     refresh()
     return check_updates_var
 

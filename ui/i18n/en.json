@@ -38,7 +38,7 @@
   "label.buf_kb": "Buffer, KB (default 256)",
   "label.pool_size": "WebSocket session pool (default 4)",
   "label.log_max_mb": "Max log size, MB (default 5)",
-  "label.check_updates": "Check for updates on startup",
+  "label.check_updates": "Check for updates automatically",
   "label.autostart": "Start on system boot",
   "label.autostart_hint": "If you move the app to another folder, the autostart entry may reset.",
 
@@ -52,7 +52,7 @@
   "tip.pool": "How many ready WebSocket connections to keep per data center.\n0 disables the direct DC->IP WebSocket route",
   "tip.log_mb": "Maximum log file size; the file is overwritten when the limit is reached",
   "tip.autostart": "Launch TG WS Proxy on Windows login. If you move the app to another folder, autostart will reset",
-  "tip.check_updates": "Check for updates on startup",
+  "tip.check_updates": "Check for updates automatically",
   "tip.cfproxy": "Use Cloudflare proxy for unreachable data centers",
   "tip.cfproxy_domain": "Your own domains proxied through Cloudflare for HTTP/2 and WS connections.\nSeparate multiple domains with commas.\nIf empty — chosen automatically from supported domains",
   "tip.cfproxy_user_domain_cb": "Specify your own domains instead of automatic selection",
